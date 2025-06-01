@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100vh; margin: 0; padding: 0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HK Paths</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  </head>
+  <body
+    style="
+      display: grid;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      grid-template-rows: max-content 1fr;
+    "
+  >
+    <h1>HK Paths</h1>
+    <div id="map" style="height: auto"></div>
+    <script type="module">
+      import { jsonFiles } from './fileIndex.js';
+      // Add OpenStreetMap tile layer
+      const map = L.map("map").setView([22.3964, 114.1099], 10); // Coordinates for Hong Kong
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap",
+      }).addTo(map);
+
+      async function drawFlightPath(jsonFilename) {
+        const data = await fetch(`./data/${jsonFilename}`).then((response) =>
+          response.json()
+        );
+
+        // Draw path from tracks array
+        var tracks = data[0].tracks; // Assuming data.tracks is the array of track objects
+        var latLngs = [];
+
+        for (var i = 0; i < tracks.length; i++) {
+          var latLng = [tracks[i].lat, tracks[i].lon]; // Adjust property names if necessary
+          if (map.getBounds().contains(latLng)) {
+            latLngs.push(latLng);
+          } else {
+            break; // Stop drawing when the path exits the current visible area
+          }
+        }
+
+        // Create a polyline and add it to the map
+        if (latLngs.length > 0) {
+          var polyline = L.polyline(latLngs, {
+            color: `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(
+              Math.random() * 256
+            )}, ${Math.floor(Math.random() * 256)})`,
+          }).addTo(map);
+        }
+      }
+
+      for (const jsonFile of jsonFiles) {
+        drawFlightPath(jsonFile);
+      }
+    </script>
+  </body>
+</html>
