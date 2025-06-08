@@ -17,32 +17,52 @@
                 /* Altitude color variables (RGB values as separate properties for easier JS access) */
                 --altitude-color-0-r: 49;
                 --altitude-color-0-g: 130;
-                --altitude-color-0-b: 189;    /* Steel Blue (0-3,000m) */
-                
+                --altitude-color-0-b: 189; /* Steel Blue (0-3,000m) */
+
                 --altitude-color-1-r: 107;
                 --altitude-color-1-g: 174;
-                --altitude-color-1-b: 173;    /* Cadet Blue (3,000-6,000m) */
-                
+                --altitude-color-1-b: 173; /* Cadet Blue (3,000-6,000m) */
+
                 --altitude-color-2-r: 111;
                 --altitude-color-2-g: 159;
-                --altitude-color-2-b: 120;    /* Sage Green (6,000-9,000m) */
-                
+                --altitude-color-2-b: 120; /* Sage Green (6,000-9,000m) */
+
                 --altitude-color-3-r: 204;
                 --altitude-color-3-g: 158;
-                --altitude-color-3-b: 105;    /* Tan (9,000-12,000m) */
-                
+                --altitude-color-3-b: 105; /* Tan (9,000-12,000m) */
+
                 --altitude-color-4-r: 176;
                 --altitude-color-4-g: 81;
-                --altitude-color-4-b: 90;     /* Dusty Red (12,000m+) */
-                
+                --altitude-color-4-b: 90; /* Dusty Red (12,000m+) */
+
                 /* Full color variables for CSS use */
-                --altitude-color-0: rgb(var(--altitude-color-0-r), var(--altitude-color-0-g), var(--altitude-color-0-b));
-                --altitude-color-1: rgb(var(--altitude-color-1-r), var(--altitude-color-1-g), var(--altitude-color-1-b));
-                --altitude-color-2: rgb(var(--altitude-color-2-r), var(--altitude-color-2-g), var(--altitude-color-2-b));
-                --altitude-color-3: rgb(var(--altitude-color-3-r), var(--altitude-color-3-g), var(--altitude-color-3-b));
-                --altitude-color-4: rgb(var(--altitude-color-4-r), var(--altitude-color-4-g), var(--altitude-color-4-b));
+                --altitude-color-0: rgb(
+                    var(--altitude-color-0-r),
+                    var(--altitude-color-0-g),
+                    var(--altitude-color-0-b)
+                );
+                --altitude-color-1: rgb(
+                    var(--altitude-color-1-r),
+                    var(--altitude-color-1-g),
+                    var(--altitude-color-1-b)
+                );
+                --altitude-color-2: rgb(
+                    var(--altitude-color-2-r),
+                    var(--altitude-color-2-g),
+                    var(--altitude-color-2-b)
+                );
+                --altitude-color-3: rgb(
+                    var(--altitude-color-3-r),
+                    var(--altitude-color-3-g),
+                    var(--altitude-color-3-b)
+                );
+                --altitude-color-4: rgb(
+                    var(--altitude-color-4-r),
+                    var(--altitude-color-4-g),
+                    var(--altitude-color-4-b)
+                );
             }
-            
+
             #cesiumContainer {
                 width: 100%;
                 height: 100%;
@@ -132,7 +152,14 @@
                 box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
             "
         >
-            <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px; text-align: center">
+            <div
+                style="
+                    font-weight: bold;
+                    margin-bottom: 8px;
+                    font-size: 14px;
+                    text-align: center;
+                "
+            >
                 Altitude Scale (meters)
             </div>
             <div style="display: flex; align-items: center; margin: 2px 0">
@@ -200,13 +227,10 @@
         <script type="module">
             import { jsonFiles } from "./fileIndex.js";
             import { getColorByAltitude, feetToMeters } from "./colorUtils.js";
+            import { waitForGlobe } from "./globeUtils.js";
 
             Cesium.Ion.defaultAccessToken =
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMzQ1ZDBjMi0yMmZhLTRhYmItYjFmNC05ODVkMGNjNGNlNjQiLCJpZCI6MzA4MTg2LCJpYXQiOjE3NDg3NzgwMzB9.o-M5-iKk1e_omJhzGdLeygfCt1t-rhH92wNNzBlNIS4";
-
-            // Altitude-based coloring is always enabled
-
-            // Color functions are now imported from colorUtils.js
 
             // Initialize the Cesium Viewer
             const viewer = new Cesium.Viewer("cesiumContainer", {
@@ -241,19 +265,7 @@
                     });
                 });
 
-            // Set the initial camera position to Hong Kong
-            viewer.camera.setView({
-                destination: Cesium.Cartesian3.fromDegrees(
-                    114.1095,
-                    22.3964,
-                    150000,
-                ), // Hong Kong coordinates with very high altitude
-                orientation: {
-                    heading: 0.0,
-                    pitch: -Cesium.Math.PI_OVER_TWO, // Look straight down
-                    roll: 0.0,
-                },
-            });
+            // Initial camera position will be set in initializeApplication()
             // Function to draw flight paths in 3D
             async function drawFlightPath(jsonFilename) {
                 try {
@@ -298,7 +310,7 @@
                     const altitudes = tracks.map((track) => track.alt);
                     const minAlt = Math.min(...altitudes);
                     const maxAlt = Math.max(...altitudes);
-                    
+
                     // Convert min/max to meters for display
                     const minAltMeters = feetToMeters(minAlt);
                     const maxAltMeters = feetToMeters(maxAlt);
@@ -384,7 +396,6 @@
                 controller.enableTilt = false;
                 controller.enableLook = false;
 
-                await new Promise((resolve) => setTimeout(resolve, 2000));
                 try {
                     // Process files in batches
                     const batchSize = 1; // Reduced batch size for more reliable processing
@@ -430,8 +441,17 @@
                 }
             }
 
-            // Start loading flight paths
-            loadAllFlightPaths();
+            // Initialize the application with proper sequencing
+            async function initializeApplication() {
+                console.log("Setting initial camera position...");
+                await waitForGlobe(viewer);
+                await loadAllFlightPaths();
+            }
+
+            // Start the initialization sequence
+            initializeApplication().catch((error) => {
+                console.error("Application initialization failed:", error);
+            });
         </script>
     </body>
 </html>
