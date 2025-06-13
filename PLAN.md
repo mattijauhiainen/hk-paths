@@ -56,12 +56,18 @@ There is a single button which centers the globe onto Hong Kong. There is also a
 ## Technical stack
 
 - The globe is implemented using cesium.js
-- There is no build step, the visualization is rendered directly in the browser. The browser rendered code needs to only reference files that are actually locally available, or files which are loaded using a CDN. There are no npm packages used.
+- There is no build step, the visualization is rendered directly in the browser using the index.html file. The browser rendered code needs to only reference files that are actually locally available, or files which are loaded using a CDN. There are no npm packages used.
+
+## Directory structure
+
+- `src` contains javascript files that are used to render the web page.
+- `data` contains the JSON data files that contain path data for the flights that the page renders.
+- `script` contains scripts that are used to source the flight data. Files here are not used for rendering the web page.
 
 ## Other things to note
 
 - For now to make development of the project easier and faster to verify, we will only render the flight paths of the first 5 flights in the data. Do not change this unless explicitly requested.
-- There are few folders that you don't need to care about
+- There are few folders that you don't need to care about. Ignore these folders:
   - noisedocs
   - script
   - data
