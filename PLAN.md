@@ -58,6 +58,13 @@ There is a single button which centers the globe onto Hong Kong. There is also a
 - The globe is implemented using cesium.js
 - There is no build step, the visualization is rendered directly in the browser using the index.html file. The browser rendered code needs to only reference files that are actually locally available, or files which are loaded using a CDN. There are no npm packages used.
 
+## Program structure
+
+### Viewer class
+
+Viewer class is an abstraction built on top of cesium.js library. It provides an interface for drawing flight paths and the globe view, and for manipulating the camera position and orientation in respect to the globe.
+
+
 ## Directory structure
 
 - `src` contains javascript files that are used to render the web page.
