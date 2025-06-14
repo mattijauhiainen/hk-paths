@@ -47,11 +47,11 @@ Never try to read the files inside the `data` directory into your context, inste
 
 ## The visualization
 
-The visualization should render the flight paths on a globe. Globe is implemented by cesium.js library. The output of the visualization is the flight track or path, departing from Hong Kong, and arriving at its destination. Each path is rendered as a line on the globe, and the color of the line represents the altitude of the flight. The colors are not continues, there are few altitude ranges where each range has a different color.
+The visualization should render the flight paths on a globe. Globe is implemented by cesium.js library. The output of the visualization is the flight track or path, departing from Hong Kong, and arriving at its destination. Each path is rendered as an animated polyline on the globe.
 
 ## Controls and UI elements
 
-There is a single button which centers the globe onto Hong Kong. There is also a legend which gives the information about the altitude colors. Altitudes are given in meters.
+There is a single button which centers the globe onto Hong Kong, and no other UI elements or controls.
 
 ## Technical stack
 

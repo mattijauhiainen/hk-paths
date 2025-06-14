@@ -13,55 +13,7 @@
         />
 
         <style>
-            :root {
-                /* Altitude color variables (RGB values as separate properties for easier JS access) */
-                --altitude-color-0-r: 49;
-                --altitude-color-0-g: 130;
-                --altitude-color-0-b: 189; /* Steel Blue (0-3,000m) */
 
-                --altitude-color-1-r: 107;
-                --altitude-color-1-g: 174;
-                --altitude-color-1-b: 173; /* Cadet Blue (3,000-6,000m) */
-
-                --altitude-color-2-r: 111;
-                --altitude-color-2-g: 159;
-                --altitude-color-2-b: 120; /* Sage Green (6,000-9,000m) */
-
-                --altitude-color-3-r: 204;
-                --altitude-color-3-g: 158;
-                --altitude-color-3-b: 105; /* Tan (9,000-12,000m) */
-
-                --altitude-color-4-r: 176;
-                --altitude-color-4-g: 81;
-                --altitude-color-4-b: 90; /* Dusty Red (12,000m+) */
-
-                /* Full color variables for CSS use */
-                --altitude-color-0: rgb(
-                    var(--altitude-color-0-r),
-                    var(--altitude-color-0-g),
-                    var(--altitude-color-0-b)
-                );
-                --altitude-color-1: rgb(
-                    var(--altitude-color-1-r),
-                    var(--altitude-color-1-g),
-                    var(--altitude-color-1-b)
-                );
-                --altitude-color-2: rgb(
-                    var(--altitude-color-2-r),
-                    var(--altitude-color-2-g),
-                    var(--altitude-color-2-b)
-                );
-                --altitude-color-3: rgb(
-                    var(--altitude-color-3-r),
-                    var(--altitude-color-3-g),
-                    var(--altitude-color-3-b)
-                );
-                --altitude-color-4: rgb(
-                    var(--altitude-color-4-r),
-                    var(--altitude-color-4-g),
-                    var(--altitude-color-4-b)
-                );
-            }
 
             #cesiumContainer {
                 width: 100%;
@@ -136,93 +88,7 @@
             </button>
         </div>
 
-        <!-- Altitude Legend -->
-        <div
-            id="altitude-legend"
-            style="
-                position: absolute;
-                left: 30px;
-                bottom: 30px;
-                background-color: rgba(38, 38, 38, 0.75);
-                padding: 12px;
-                border-radius: 5px;
-                z-index: 1000;
-                color: white;
-                border: 1px solid rgba(200, 200, 200, 0.3);
-                box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
-            "
-        >
-            <div
-                style="
-                    font-weight: bold;
-                    margin-bottom: 8px;
-                    font-size: 14px;
-                    text-align: center;
-                "
-            >
-                Altitude Scale (meters)
-            </div>
-            <div style="display: flex; align-items: center; margin: 2px 0">
-                <div
-                    style="
-                        width: 20px;
-                        height: 20px;
-                        background: var(--altitude-color-4);
-                        margin-right: 10px;
-                        border-radius: 3px;
-                    "
-                ></div>
-                <span>12,000+</span>
-            </div>
-            <div style="display: flex; align-items: center; margin: 2px 0">
-                <div
-                    style="
-                        width: 20px;
-                        height: 20px;
-                        background: var(--altitude-color-3);
-                        margin-right: 10px;
-                        border-radius: 3px;
-                    "
-                ></div>
-                <span>9,000 - 12,000</span>
-            </div>
-            <div style="display: flex; align-items: center; margin: 2px 0">
-                <div
-                    style="
-                        width: 20px;
-                        height: 20px;
-                        background: var(--altitude-color-2);
-                        margin-right: 10px;
-                        border-radius: 3px;
-                    "
-                ></div>
-                <span>6,000 - 9,000</span>
-            </div>
-            <div style="display: flex; align-items: center; margin: 2px 0">
-                <div
-                    style="
-                        width: 20px;
-                        height: 20px;
-                        background: var(--altitude-color-1);
-                        margin-right: 10px;
-                        border-radius: 3px;
-                    "
-                ></div>
-                <span>3,000 - 6,000</span>
-            </div>
-            <div style="display: flex; align-items: center; margin: 2px 0">
-                <div
-                    style="
-                        width: 20px;
-                        height: 20px;
-                        background: var(--altitude-color-0);
-                        margin-right: 10px;
-                        border-radius: 3px;
-                    "
-                ></div>
-                <span>0 - 3,000</span>
-            </div>
-        </div>
+
 
         <script type="module">
             import { jsonFiles } from "./src/fileIndex.js";
@@ -253,12 +119,9 @@
                 // Clear existing entities
                 viewer.clearEntities();
 
-                // Disable camera controls during loading
-                viewer.disableCameraControls();
-
                 try {
                     let loadedCount = 0;
-                    const FLIGHTS_TO_DRAW = 5;
+                    const FLIGHTS_TO_DRAW = 100;
 
                     // Get the first 5 flights in chronological order
                     const flights =
@@ -269,7 +132,7 @@
                             `Processing flight ${i + 1}/${flights.length}`,
                         );
 
-                        const entity = viewer.drawFlightPath(
+                        const entity = await viewer.drawFlightPath(
                             flights[i].data,
                             flights[i].filePath,
                         );
@@ -279,7 +142,7 @@
 
                         // Allow UI to update
                         await new Promise((resolve) =>
-                            setTimeout(resolve, 500),
+                            setTimeout(resolve, 5000),
                         );
                     }
 
@@ -288,9 +151,6 @@
                     );
                 } catch (error) {
                     console.error("Error loading flight paths:", error);
-                } finally {
-                    // Re-enable camera controls
-                    viewer.enableCameraControls();
                 }
             }
 

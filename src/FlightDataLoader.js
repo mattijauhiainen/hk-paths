@@ -1,9 +1,9 @@
 /**
  * FlightDataLoader class
- * 
- * Responsible for loading the flight data that the visualisation needs. 
- * It is initialised with a list of file paths that resolve to files which are part of the visualisation. 
- * In its initialisation it will load all the files and get chronologically sorted list of flight data, 
+ *
+ * Responsible for loading the flight data that the visualisation needs.
+ * It is initialised with a list of file paths that resolve to files which are part of the visualisation.
+ * In its initialisation it will load all the files and get chronologically sorted list of flight data,
  * which is then used to draw the flight paths on the globe.
  */
 export class FlightDataLoader {
@@ -23,7 +23,7 @@ export class FlightDataLoader {
    */
   async loadData() {
     console.log(`Loading ${this.filePaths.length} flight data files...`);
-    
+
     try {
       const loadPromises = this.filePaths.map(async (filePath) => {
         try {
@@ -40,23 +40,27 @@ export class FlightDataLoader {
       });
 
       const results = await Promise.all(loadPromises);
-      
+
       // Filter out failed loads and extract flight data
       this.flightData = results
-        .filter(result => result.data !== null)
-        .map(result => ({
+        .filter((result) => result.data !== null)
+        .map((result) => ({
           filePath: result.filePath,
           flightData: result.data,
           // Get the earliest timestamp from the flight for chronological sorting
-          earliestTimestamp: this.getEarliestTimestamp(result.data)
+          earliestTimestamp: this.getEarliestTimestamp(result.data),
         }))
-        .sort((a, b) => new Date(a.earliestTimestamp) - new Date(b.earliestTimestamp));
+        .sort(
+          (a, b) =>
+            new Date(a.earliestTimestamp) - new Date(b.earliestTimestamp),
+        );
 
       this.isLoaded = true;
-      console.log(`Successfully loaded ${this.flightData.length} flight data files`);
-      
+      console.log(
+        `Successfully loaded ${this.flightData.length} flight data files`,
+      );
     } catch (error) {
-      console.error('Error loading flight data:', error);
+      console.error("Error loading flight data:", error);
       throw error;
     }
   }
@@ -68,12 +72,12 @@ export class FlightDataLoader {
    */
   getEarliestTimestamp(flightData) {
     if (!flightData || !Array.isArray(flightData) || flightData.length === 0) {
-      throw new Error('Flight data is missing or invalid');
+      throw new Error("Flight data is missing or invalid");
     }
 
     const flight = flightData[0];
     if (!flight.tracks || flight.tracks.length === 0) {
-      throw new Error('Flight tracks are missing or empty');
+      throw new Error("Flight tracks are missing or empty");
     }
 
     // Return the timestamp of the first track point
@@ -95,14 +99,12 @@ export class FlightDataLoader {
    */
   getFlights(count) {
     if (!this.isLoaded) {
-      throw new Error('Data not loaded yet. Call loadData() first.');
+      throw new Error("Data not loaded yet. Call loadData() first.");
     }
-    
-    return this.flightData
-      .slice(0, count)
-      .map(item => ({
-        data: item.flightData,
-        filePath: item.filePath
-      }));
+
+    return this.flightData.slice(0, count).map((item) => ({
+      data: item.flightData,
+      filePath: item.filePath,
+    }));
   }
 }
