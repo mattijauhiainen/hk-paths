@@ -228,6 +228,7 @@
             import { jsonFiles } from "./src/fileIndex.js";
             import { Viewer } from "./src/Viewer.js";
             import { LOCATION_HONG_KONG } from "./src/globeUtils.js";
+            import { FlightDataLoader } from "./src/FlightDataLoader.js";
 
             // Get DOM elements
             const cesiumContainer = document.getElementById("cesiumContainer");
@@ -245,6 +246,10 @@
             async function loadAllFlightPaths() {
                 console.log("Loading flight paths");
 
+                // Initialize flight data loader
+                const flightDataLoader = new FlightDataLoader(jsonFiles);
+                await flightDataLoader.loadData();
+
                 // Clear existing entities
                 viewer.clearEntities();
 
@@ -253,20 +258,20 @@
 
                 try {
                     let loadedCount = 0;
-                    const FLIGHTS_TO_DRAW = Math.min(5, jsonFiles.length);
-                    for (let i = 0; i < FLIGHTS_TO_DRAW; i++) {
+                    const FLIGHTS_TO_DRAW = 5;
+
+                    // Get the first 5 flights in chronological order
+                    const flights =
+                        flightDataLoader.getFlights(FLIGHTS_TO_DRAW);
+
+                    for (let i = 0; i < flights.length; i++) {
                         console.log(
-                            `Processing flight ${i + 1}/${FLIGHTS_TO_DRAW}`,
+                            `Processing flight ${i + 1}/${flights.length}`,
                         );
 
-                        // Load JSON file
-                        const flightData = await fetch(
-                            `./data/${jsonFiles[i]}`,
-                        ).then((response) => response.json());
-
                         const entity = viewer.drawFlightPath(
-                            flightData,
-                            jsonFiles[i],
+                            flights[i].data,
+                            flights[i].filePath,
                         );
                         if (entity !== null) {
                             loadedCount++;

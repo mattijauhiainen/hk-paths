@@ -64,6 +64,9 @@ There is a single button which centers the globe onto Hong Kong. There is also a
 
 Viewer class is an abstraction built on top of cesium.js library. It provides an interface for drawing flight paths and the globe view, and for manipulating the camera position and orientation in respect to the globe.
 
+### FlightDataLoader class
+
+FlightDataLoader is responsible for loading the flight data that the visualisation needs. It is initialised with a list of file paths that resolve to files which are part of the visualisation. In its initialisation it will load all the files and get chronologically sorted list of flight data, which is then used to draw the flight paths on the globe.
 
 ## Directory structure
 
