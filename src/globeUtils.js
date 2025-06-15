@@ -2,21 +2,21 @@
 export const LOCATION_HONG_KONG = {
   longitude: 114.1095,
   latitude: 22.3964,
-  altitude: 150000,
+  altitude: 150_000,
   orientation: {
     heading: 0.0,
     pitch: -Cesium.Math.PI_OVER_TWO,
     roll: 0.0,
-  }
+  },
 };
 
 export async function waitForGlobe(viewer) {
   // Ensure camera is set first
   viewer.camera.setView({
     destination: Cesium.Cartesian3.fromDegrees(
-      LOCATION_HONG_KONG.longitude, 
-      LOCATION_HONG_KONG.latitude, 
-      LOCATION_HONG_KONG.altitude
+      LOCATION_HONG_KONG.longitude,
+      LOCATION_HONG_KONG.latitude,
+      LOCATION_HONG_KONG.altitude,
     ),
     orientation: LOCATION_HONG_KONG.orientation,
   });

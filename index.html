@@ -99,7 +99,6 @@
 
             // Initialize our custom Viewer class
             const viewer = new Viewer(cesiumContainer);
-
             // Initialize Timeline class for managing global animation timeline
             const timeline = new Timeline(viewer.cesiumViewer.clock);
 
@@ -119,6 +118,10 @@
                 // Clear existing entities and reset timeline
                 viewer.clearEntities();
                 timeline.reset();
+                // Enable altitude-based speed control
+                viewer.enableAltitudeBasedSpeed(
+                    timeline.updateSpeedForConstantPixelRate.bind(timeline),
+                );
 
                 let loadedCount = 0;
                 const FLIGHTS_TO_DRAW = 500;
@@ -127,10 +130,8 @@
                 const flights = flightDataLoader.getFlights(FLIGHTS_TO_DRAW);
 
                 // Calculate global timeline using Timeline class
-                const globalTimeline = timeline.calculateGlobalTimeline(
-                    flights,
-                    20_000_000,
-                );
+                const globalTimeline =
+                    timeline.calculateGlobalTimeline(flights);
                 if (!globalTimeline) {
                     console.error("Failed to calculate global timeline");
                     return;

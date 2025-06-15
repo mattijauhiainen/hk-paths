@@ -24,7 +24,7 @@ export class Timeline {
    */
   calculateGlobalTimeline(
     flights,
-    animationScaleFactor = 100000,
+    animationScaleFactor = 30_000,
     minDuration = 30,
   ) {
     if (!flights || flights.length === 0) {
@@ -184,5 +184,37 @@ export class Timeline {
     );
     const progress = (elapsed / this.globalTimeline.animationDuration) * 100;
     return Math.max(0, Math.min(100, progress));
+  }
+
+  /**
+   * Updates the animation speed multiplier to maintain constant pixel speed
+   * @param {number} currentAltitude - Current camera altitude in meters
+   * @param {number} baseAltitude - Base altitude for normal speed
+   * @param {number} minSpeed - Minimum speed multiplier (default: 0.01)
+   * @param {number} maxSpeed - Maximum speed multiplier (default: 100)
+   */
+  updateSpeedForConstantPixelRate(
+    currentAltitude,
+    baseAltitude,
+    minSpeed = 0.01,
+    maxSpeed = 100,
+  ) {
+    if (!this.cesiumClock || !this.isAnimating) {
+      return;
+    }
+
+    // Calculate speed multiplier to maintain constant pixel speed
+    // Higher altitude = smaller apparent size = need faster animation
+    // Speed is proportional to altitude ratio
+    const speedMultiplier = currentAltitude / baseAltitude;
+
+    // Clamp to min/max values to prevent extreme speeds
+    const clampedMultiplier = Math.max(
+      minSpeed,
+      Math.min(maxSpeed, speedMultiplier),
+    );
+
+    // Apply the speed multiplier to the clock
+    this.cesiumClock.multiplier = clampedMultiplier;
   }
 }

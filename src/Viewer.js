@@ -104,10 +104,13 @@ export class Viewer {
       );
 
       // Map this flight's real time to the global animation timeline
-      const globalRealDuration = timelineParams.latestEnd - timelineParams.earliestStart; // milliseconds
-      const flightStartOffset = (realStartTime - timelineParams.earliestStart) / globalRealDuration;
-      const flightEndOffset = (realEndTime - timelineParams.earliestStart) / globalRealDuration;
-      
+      const globalRealDuration =
+        timelineParams.latestEnd - timelineParams.earliestStart; // milliseconds
+      const flightStartOffset =
+        (realStartTime - timelineParams.earliestStart) / globalRealDuration;
+      const flightEndOffset =
+        (realEndTime - timelineParams.earliestStart) / globalRealDuration;
+
       const startTime = Cesium.JulianDate.addSeconds(
         timelineParams.animationStart,
         flightStartOffset * timelineParams.animationDuration,
@@ -118,8 +121,11 @@ export class Viewer {
         flightEndOffset * timelineParams.animationDuration,
         new Cesium.JulianDate(),
       );
-      
-      const flightAnimationDuration = Cesium.JulianDate.secondsDifference(endTime, startTime);
+
+      const flightAnimationDuration = Cesium.JulianDate.secondsDifference(
+        endTime,
+        startTime,
+      );
 
       // Create SampledPositionProperty with actual timestamps mapped to animation timeline
       const sampledPosition = new Cesium.SampledPositionProperty();
@@ -186,8 +192,6 @@ export class Viewer {
     }
   }
 
-
-
   /**
    * Clears all entities from the viewer and resets animation timeline
    */
@@ -222,5 +226,31 @@ export class Viewer {
     controller.enableZoom = true;
     controller.enableTilt = true;
     controller.enableLook = true;
+  }
+
+  /**
+   * Enables constant pixel speed control
+   * @param {Function} updateSpeedFunction - The function to call for speed updates
+   */
+  enableAltitudeBasedSpeed(updateSpeedFunction) {
+    // Capture initial altitude as the baseline for 1x speed
+    const initialAltitude = this.getCameraAltitude();
+    this.baseAltitude = initialAltitude;
+
+    // Set up camera change listener
+    this.cesiumViewer.camera.changed.addEventListener(() => {
+      const currentAltitude = this.getCameraAltitude();
+      updateSpeedFunction(currentAltitude, this.baseAltitude);
+    });
+  }
+
+  /**
+   * Gets the current camera altitude above the ground
+   * @returns {number} Camera altitude in meters
+   */
+  getCameraAltitude() {
+    const cameraPosition = this.cesiumViewer.camera.position;
+    const cartographic = Cesium.Cartographic.fromCartesian(cameraPosition);
+    return cartographic.height;
   }
 }
