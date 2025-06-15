@@ -193,42 +193,6 @@ export class Viewer {
   }
 
   /**
-   * Clears all entities from the viewer and resets animation timeline
-   */
-  clearEntities() {
-    this.cesiumViewer.entities.removeAll();
-    // Reset animation timeline
-    this.cesiumViewer.clock.currentTime = Cesium.JulianDate.now();
-    this.cesiumViewer.clock.shouldAnimate = false;
-    this.cesiumViewer.clock.startTime = undefined;
-    this.cesiumViewer.clock.stopTime = undefined;
-  }
-
-  /**
-   * Disables camera controls during loading
-   */
-  disableCameraControls() {
-    const controller = this.cesiumViewer.scene.screenSpaceCameraController;
-    controller.enableRotate = false;
-    controller.enableTranslate = false;
-    controller.enableZoom = false;
-    controller.enableTilt = false;
-    controller.enableLook = false;
-  }
-
-  /**
-   * Enables camera controls after loading
-   */
-  enableCameraControls() {
-    const controller = this.cesiumViewer.scene.screenSpaceCameraController;
-    controller.enableRotate = true;
-    controller.enableTranslate = true;
-    controller.enableZoom = true;
-    controller.enableTilt = true;
-    controller.enableLook = true;
-  }
-
-  /**
    * Enables constant pixel speed control
    * @param {Function} updateSpeedFunction - The function to call for speed updates
    */

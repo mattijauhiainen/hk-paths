@@ -137,22 +137,6 @@ export class Timeline {
   }
 
   /**
-   * Resets the timeline state
-   */
-  reset() {
-    this.stopAnimation();
-    this.globalTimeline = null;
-
-    if (this.cesiumClock) {
-      this.cesiumClock.currentTime = Cesium.JulianDate.now();
-      this.cesiumClock.startTime = undefined;
-      this.cesiumClock.stopTime = undefined;
-    }
-
-    console.log("Timeline reset");
-  }
-
-  /**
    * Gets the current global timeline
    * @returns {Object|null} The global timeline object or null if not calculated
    */
