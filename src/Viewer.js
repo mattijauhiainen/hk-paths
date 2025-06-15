@@ -74,9 +74,14 @@ export class Viewer {
    * Draws a flight path on the globe with smooth animation using path entity
    * @param {Object} flightData - The flight data object containing track information
    * @param {string} flightId - Optional identifier for the flight (for logging/naming)
-   * @returns {Promise<Cesium.Entity|null>} A promise that resolves to the created entity or null if an error occurred
+   * @param {Object} globalTimeline - Global timeline information for synchronized animations
+   * @param {Date} globalTimeline.earliestStart - The earliest flight start time across all flights
+   * @param {Date} globalTimeline.latestEnd - The latest flight end time across all flights
+   * @param {Cesium.JulianDate} globalTimeline.animationStart - When the global animation starts
+   * @param {number} globalTimeline.animationDuration - Total duration of the global animation in seconds
+   * @returns {Cesium.Entity|null} The created entity or null if an error occurred
    */
-  async drawFlightPath(flightData, flightId = "unknown") {
+  drawFlightPath(flightData, flightId = "unknown", globalTimeline) {
     try {
       // Extract track data
       const tracks = flightData[0].tracks;
@@ -91,30 +96,30 @@ export class Viewer {
         return null;
       }
 
-      // Create animation timeline based on actual flight timestamps
+      // Create animation timeline based on global timeline and actual flight timestamps
       const realStartTime = new Date(tracks[0].timestamp);
       const realEndTime = new Date(tracks[tracks.length - 1].timestamp);
-      const realDuration = realEndTime - realStartTime; // milliseconds
       console.log(
-        `Animation running from ${realStartTime.toLocaleString()} to ${realEndTime.toLocaleString()} in calendar time`,
+        `Flight running from ${realStartTime.toLocaleString()} to ${realEndTime.toLocaleString()} in calendar time`,
       );
 
-      // Use current viewer time for animation scheduling
-      const now = this.cesiumViewer.clock.currentTime;
-      const animationDuration = Math.max(realDuration / 1000000, 5); // Scale down but minimum 5 seconds
-      console.log(
-        `Animation duration: ${animationDuration.toFixed(2)} seconds`,
-      );
+      // Map this flight's real time to the global animation timeline
+      const globalRealDuration = globalTimeline.latestEnd - globalTimeline.earliestStart; // milliseconds
+      const flightStartOffset = (realStartTime - globalTimeline.earliestStart) / globalRealDuration;
+      const flightEndOffset = (realEndTime - globalTimeline.earliestStart) / globalRealDuration;
+      
       const startTime = Cesium.JulianDate.addSeconds(
-        now,
-        1,
+        globalTimeline.animationStart,
+        flightStartOffset * globalTimeline.animationDuration,
         new Cesium.JulianDate(),
       );
       const endTime = Cesium.JulianDate.addSeconds(
-        startTime,
-        animationDuration,
+        globalTimeline.animationStart,
+        flightEndOffset * globalTimeline.animationDuration,
         new Cesium.JulianDate(),
       );
+      
+      const flightAnimationDuration = Cesium.JulianDate.secondsDifference(endTime, startTime);
 
       // Create SampledPositionProperty with actual timestamps mapped to animation timeline
       const sampledPosition = new Cesium.SampledPositionProperty();
@@ -131,7 +136,7 @@ export class Viewer {
           (trackTime - realStartTime) / (realEndTime - realStartTime);
         const animationTime = Cesium.JulianDate.addSeconds(
           startTime,
-          timeProgress * animationDuration,
+          timeProgress * flightAnimationDuration,
           new Cesium.JulianDate(),
         );
 
@@ -144,13 +149,20 @@ export class Viewer {
         sampledPosition.addSample(animationTime, position);
       }
 
+      // Calculate global animation end time to keep entity visible after flight completion
+      const globalAnimationEnd = Cesium.JulianDate.addSeconds(
+        globalTimeline.animationStart,
+        globalTimeline.animationDuration,
+        new Cesium.JulianDate(),
+      );
+
       // Create animated entity with path that grows over time
       const entity = this.cesiumViewer.entities.add({
         name: `Flight ${flightData[0].fr24_id || flightId}`,
         availability: new Cesium.TimeIntervalCollection([
           new Cesium.TimeInterval({
             start: startTime,
-            stop: endTime,
+            stop: globalAnimationEnd, // Keep visible until global animation ends
           }),
         ]),
         position: sampledPosition,
@@ -162,69 +174,19 @@ export class Viewer {
           }),
           width: 3,
           leadTime: 0,
-          trailTime: animationDuration,
+          trailTime: Number.MAX_VALUE,
           show: true,
         },
       });
 
-      // Update viewer clock to encompass this flight
-      if (
-        !this.cesiumViewer.clock.startTime ||
-        Cesium.JulianDate.compare(
-          startTime,
-          this.cesiumViewer.clock.startTime,
-        ) < 0
-      ) {
-        this.cesiumViewer.clock.startTime = startTime.clone();
-      }
-      if (
-        !this.cesiumViewer.clock.stopTime ||
-        Cesium.JulianDate.compare(endTime, this.cesiumViewer.clock.stopTime) > 0
-      ) {
-        this.cesiumViewer.clock.stopTime = endTime.clone();
-      }
-
-      // Set clock to start of this animation if needed
-      if (
-        Cesium.JulianDate.compare(
-          this.cesiumViewer.clock.currentTime,
-          startTime,
-        ) < 0
-      ) {
-        this.cesiumViewer.clock.currentTime = startTime.clone();
-      }
-
-      this.cesiumViewer.clock.clockRange = Cesium.ClockRange.CLAMPED;
-      this.cesiumViewer.clock.multiplier = 1.0;
-      this.cesiumViewer.clock.shouldAnimate = true;
-
-      // Wait for this flight's animation to complete
-      return new Promise((resolve) => {
-        const checkComplete = () => {
-          if (
-            Cesium.JulianDate.compare(
-              this.cesiumViewer.clock.currentTime,
-              endTime,
-            ) >= 0
-          ) {
-            // Move clock forward for next flight
-            this.cesiumViewer.clock.currentTime = Cesium.JulianDate.addSeconds(
-              endTime,
-              1,
-              new Cesium.JulianDate(),
-            );
-            resolve(entity);
-          } else {
-            setTimeout(checkComplete, 100);
-          }
-        };
-        checkComplete();
-      });
+      return entity;
     } catch (error) {
       console.error(`Error processing flight ${flightId}:`, error);
       return null;
     }
   }
+
+
 
   /**
    * Clears all entities from the viewer and resets animation timeline

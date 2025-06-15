@@ -47,7 +47,7 @@ Never try to read the files inside the `data` directory into your context, inste
 
 ## The visualization
 
-The visualization should render the flight paths on a globe. Globe is implemented by cesium.js library. The output of the visualization is the flight track or path, departing from Hong Kong, and arriving at its destination. Each path is rendered as an animated polyline on the globe.
+The visualization should render the flight paths on a globe. Globe is implemented by cesium.js library. The output of the visualization is the flight track or path, departing from Hong Kong, and arriving at its destination. Each path is rendered as an animated polyline on the globe. The flights are rendered on a realistic sped up timeline, so if two flights were in the air at the same time, they will be rendered at the same time.
 
 ## Controls and UI elements
 
@@ -67,6 +67,10 @@ Viewer class is an abstraction built on top of cesium.js library. It provides an
 ### FlightDataLoader class
 
 FlightDataLoader is responsible for loading the flight data that the visualisation needs. It is initialised with a list of file paths that resolve to files which are part of the visualisation. In its initialisation it will load all the files and get chronologically sorted list of flight data, which is then used to draw the flight paths on the globe.
+
+### Timeline class
+
+Timeline class is is used to start and stop the animation. It also contains the data about duration of the animation and can be used to calculate where an individual flight is at a given time.
 
 ## Directory structure
 

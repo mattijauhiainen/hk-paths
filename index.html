@@ -13,8 +13,6 @@
         />
 
         <style>
-
-
             #cesiumContainer {
                 width: 100%;
                 height: 100%;
@@ -88,13 +86,12 @@
             </button>
         </div>
 
-
-
         <script type="module">
             import { jsonFiles } from "./src/fileIndex.js";
             import { Viewer } from "./src/Viewer.js";
             import { LOCATION_HONG_KONG } from "./src/globeUtils.js";
             import { FlightDataLoader } from "./src/FlightDataLoader.js";
+            import { Timeline } from "./src/Timeline.js";
 
             // Get DOM elements
             const cesiumContainer = document.getElementById("cesiumContainer");
@@ -102,6 +99,9 @@
 
             // Initialize our custom Viewer class
             const viewer = new Viewer(cesiumContainer);
+
+            // Initialize Timeline class for managing global animation timeline
+            const timeline = new Timeline(viewer);
 
             // Set up custom navigation controls directly in the HTML file
             homeButton.addEventListener("click", () =>
@@ -116,42 +116,49 @@
                 const flightDataLoader = new FlightDataLoader(jsonFiles);
                 await flightDataLoader.loadData();
 
-                // Clear existing entities
+                // Clear existing entities and reset timeline
                 viewer.clearEntities();
+                timeline.reset();
 
-                try {
-                    let loadedCount = 0;
-                    const FLIGHTS_TO_DRAW = 100;
+                let loadedCount = 0;
+                const FLIGHTS_TO_DRAW = 500;
 
-                    // Get the first 5 flights in chronological order
-                    const flights =
-                        flightDataLoader.getFlights(FLIGHTS_TO_DRAW);
+                // Get flights in chronological order
+                const flights = flightDataLoader.getFlights(FLIGHTS_TO_DRAW);
 
-                    for (let i = 0; i < flights.length; i++) {
-                        console.log(
-                            `Processing flight ${i + 1}/${flights.length}`,
-                        );
-
-                        const entity = await viewer.drawFlightPath(
-                            flights[i].data,
-                            flights[i].filePath,
-                        );
-                        if (entity !== null) {
-                            loadedCount++;
-                        }
-
-                        // Allow UI to update
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, 5000),
-                        );
-                    }
-
-                    console.log(
-                        `Successfully loaded ${loadedCount} flight paths`,
-                    );
-                } catch (error) {
-                    console.error("Error loading flight paths:", error);
+                // Calculate global timeline using Timeline class
+                const globalTimeline = timeline.calculateGlobalTimeline(
+                    flights,
+                    20_000_000,
+                );
+                if (!globalTimeline) {
+                    console.error("Failed to calculate global timeline");
+                    return;
                 }
+
+                console.log(
+                    `Processing ${flights.length} overlapping flights simultaneously`,
+                );
+
+                // Process all flights simultaneously using the global timeline
+                flights.forEach((flight, i) => {
+                    console.log(`Adding flight ${i + 1}/${flights.length}`);
+
+                    const entity = viewer.drawFlightPath(
+                        flight.data,
+                        flight.filePath,
+                        globalTimeline,
+                    );
+                    if (entity !== null) {
+                        loadedCount++;
+                    }
+                });
+
+                // Start the global animation using Timeline class
+                timeline.startAnimation();
+                console.log(
+                    `Successfully loaded ${loadedCount} flight paths with overlapping animations`,
+                );
             }
 
             // Initialize the application with proper sequencing
