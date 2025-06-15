@@ -72,6 +72,16 @@ FlightDataLoader is responsible for loading the flight data that the visualisati
 
 Timeline class is is used to start and stop the animation. It also contains the data about duration of the animation and can be used to calculate where an individual flight is at a given time.
 
+### Clock class
+
+Clock class shows the current animation time, allowing viewer to understand when the flight that is being drawn occured in real world time. It also gives an idea of how fast or slow the animation is being drawn.
+
+The clock works by:
+1. Getting the current animation progress from the Cesium clock
+2. Mapping this progress to the global timeline (earliest to latest flight times)
+3. Calculating the corresponding real-world time
+4. Displaying this time in the specified timezone format
+
 ## Directory structure
 
 - `src` contains javascript files that are used to render the web page.

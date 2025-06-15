@@ -11,6 +11,7 @@
             href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css"
             rel="stylesheet"
         />
+        <link href="./src/clock.css" rel="stylesheet" />
 
         <style>
             #cesiumContainer {
@@ -76,6 +77,13 @@
             <h1>HK Paths - Animated Flight Track</h1>
         </div>
         <div id="cesiumContainer"></div>
+        <div id="simulationClock">
+            <div class="clock-container">
+                <div class="clock-label">Simulation Time</div>
+                <div class="clock-time">--:--:--</div>
+                <div class="clock-date">---- -- --</div>
+            </div>
+        </div>
         <div id="navigationContainer">
             <button
                 id="homeButton"
@@ -92,15 +100,19 @@
             import { LOCATION_HONG_KONG } from "./src/globeUtils.js";
             import { FlightDataLoader } from "./src/FlightDataLoader.js";
             import { Timeline } from "./src/Timeline.js";
+            import { Clock } from "./src/Clock.js";
 
             // Get DOM elements
             const cesiumContainer = document.getElementById("cesiumContainer");
             const homeButton = document.getElementById("homeButton");
+            const clockElement = document.getElementById("simulationClock");
 
             // Initialize our custom Viewer class
             const viewer = new Viewer(cesiumContainer);
             // Initialize Timeline class for managing global animation timeline
             const timeline = new Timeline(viewer.cesiumViewer.clock);
+            // Initialize Clock class for displaying simulation time
+            const clock = new Clock(timeline, clockElement, "Asia/Hong_Kong");
 
             // Set up custom navigation controls directly in the HTML file
             homeButton.addEventListener("click", () =>
