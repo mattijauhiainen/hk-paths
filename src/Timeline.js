@@ -7,10 +7,10 @@
 export class Timeline {
   /**
    * Creates a new Timeline instance
-   * @param {Viewer} viewer - The Viewer instance to coordinate with
+   * @param {Cesium.Clock} cesiumClock - The Cesium clock instance to coordinate with
    */
-  constructor(viewer) {
-    this.viewer = viewer;
+  constructor(cesiumClock) {
+    this.cesiumClock = cesiumClock;
     this.globalTimeline = null;
     this.isAnimating = false;
   }
@@ -108,14 +108,12 @@ export class Timeline {
     );
 
     // Configure the Cesium clock for the global timeline
-    this.viewer.cesiumViewer.clock.startTime =
-      this.globalTimeline.animationStart.clone();
-    this.viewer.cesiumViewer.clock.stopTime = globalAnimationEnd.clone();
-    this.viewer.cesiumViewer.clock.currentTime =
-      this.globalTimeline.animationStart.clone();
-    this.viewer.cesiumViewer.clock.clockRange = Cesium.ClockRange.CLAMPED;
-    this.viewer.cesiumViewer.clock.multiplier = 1.0;
-    this.viewer.cesiumViewer.clock.shouldAnimate = true;
+    this.cesiumClock.startTime = this.globalTimeline.animationStart.clone();
+    this.cesiumClock.stopTime = globalAnimationEnd.clone();
+    this.cesiumClock.currentTime = this.globalTimeline.animationStart.clone();
+    this.cesiumClock.clockRange = Cesium.ClockRange.CLAMPED;
+    this.cesiumClock.multiplier = 1.0;
+    this.cesiumClock.shouldAnimate = true;
 
     this.isAnimating = true;
 
@@ -131,8 +129,8 @@ export class Timeline {
    * Stops the global animation
    */
   stopAnimation() {
-    if (this.viewer && this.viewer.cesiumViewer) {
-      this.viewer.cesiumViewer.clock.shouldAnimate = false;
+    if (this.cesiumClock) {
+      this.cesiumClock.shouldAnimate = false;
     }
     this.isAnimating = false;
     console.log("Global animation stopped");
@@ -145,10 +143,10 @@ export class Timeline {
     this.stopAnimation();
     this.globalTimeline = null;
 
-    if (this.viewer && this.viewer.cesiumViewer) {
-      this.viewer.cesiumViewer.clock.currentTime = Cesium.JulianDate.now();
-      this.viewer.cesiumViewer.clock.startTime = undefined;
-      this.viewer.cesiumViewer.clock.stopTime = undefined;
+    if (this.cesiumClock) {
+      this.cesiumClock.currentTime = Cesium.JulianDate.now();
+      this.cesiumClock.startTime = undefined;
+      this.cesiumClock.stopTime = undefined;
     }
 
     console.log("Timeline reset");
@@ -179,7 +177,7 @@ export class Timeline {
       return 0;
     }
 
-    const currentTime = this.viewer.cesiumViewer.clock.currentTime;
+    const currentTime = this.cesiumClock.currentTime;
     const elapsed = Cesium.JulianDate.secondsDifference(
       currentTime,
       this.globalTimeline.animationStart,

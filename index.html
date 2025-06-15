@@ -101,7 +101,7 @@
             const viewer = new Viewer(cesiumContainer);
 
             // Initialize Timeline class for managing global animation timeline
-            const timeline = new Timeline(viewer);
+            const timeline = new Timeline(viewer.cesiumViewer.clock);
 
             // Set up custom navigation controls directly in the HTML file
             homeButton.addEventListener("click", () =>
@@ -147,7 +147,12 @@
                     const entity = viewer.drawFlightPath(
                         flight.data,
                         flight.filePath,
-                        globalTimeline,
+                        {
+                            earliestStart: globalTimeline.earliestStart,
+                            latestEnd: globalTimeline.latestEnd,
+                            animationStart: globalTimeline.animationStart,
+                            animationDuration: globalTimeline.animationDuration,
+                        },
                     );
                     if (entity !== null) {
                         loadedCount++;

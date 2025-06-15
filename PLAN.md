@@ -80,7 +80,6 @@ Timeline class is is used to start and stop the animation. It also contains the 
 
 ## Other things to note
 
-- For now to make development of the project easier and faster to verify, we will only render the flight paths of the first 5 flights in the data. Do not change this unless explicitly requested.
 - There are few folders that you don't need to care about. Ignore these folders:
   - noisedocs
   - script

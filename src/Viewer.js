@@ -74,14 +74,14 @@ export class Viewer {
    * Draws a flight path on the globe with smooth animation using path entity
    * @param {Object} flightData - The flight data object containing track information
    * @param {string} flightId - Optional identifier for the flight (for logging/naming)
-   * @param {Object} globalTimeline - Global timeline information for synchronized animations
-   * @param {Date} globalTimeline.earliestStart - The earliest flight start time across all flights
-   * @param {Date} globalTimeline.latestEnd - The latest flight end time across all flights
-   * @param {Cesium.JulianDate} globalTimeline.animationStart - When the global animation starts
-   * @param {number} globalTimeline.animationDuration - Total duration of the global animation in seconds
+   * @param {Object} timelineParams - Timeline parameters for synchronized animations
+   * @param {Date} timelineParams.earliestStart - The earliest flight start time across all flights
+   * @param {Date} timelineParams.latestEnd - The latest flight end time across all flights
+   * @param {Cesium.JulianDate} timelineParams.animationStart - When the global animation starts
+   * @param {number} timelineParams.animationDuration - Total duration of the global animation in seconds
    * @returns {Cesium.Entity|null} The created entity or null if an error occurred
    */
-  drawFlightPath(flightData, flightId = "unknown", globalTimeline) {
+  drawFlightPath(flightData, flightId = "unknown", timelineParams) {
     try {
       // Extract track data
       const tracks = flightData[0].tracks;
@@ -104,18 +104,18 @@ export class Viewer {
       );
 
       // Map this flight's real time to the global animation timeline
-      const globalRealDuration = globalTimeline.latestEnd - globalTimeline.earliestStart; // milliseconds
-      const flightStartOffset = (realStartTime - globalTimeline.earliestStart) / globalRealDuration;
-      const flightEndOffset = (realEndTime - globalTimeline.earliestStart) / globalRealDuration;
+      const globalRealDuration = timelineParams.latestEnd - timelineParams.earliestStart; // milliseconds
+      const flightStartOffset = (realStartTime - timelineParams.earliestStart) / globalRealDuration;
+      const flightEndOffset = (realEndTime - timelineParams.earliestStart) / globalRealDuration;
       
       const startTime = Cesium.JulianDate.addSeconds(
-        globalTimeline.animationStart,
-        flightStartOffset * globalTimeline.animationDuration,
+        timelineParams.animationStart,
+        flightStartOffset * timelineParams.animationDuration,
         new Cesium.JulianDate(),
       );
       const endTime = Cesium.JulianDate.addSeconds(
-        globalTimeline.animationStart,
-        flightEndOffset * globalTimeline.animationDuration,
+        timelineParams.animationStart,
+        flightEndOffset * timelineParams.animationDuration,
         new Cesium.JulianDate(),
       );
       
@@ -151,8 +151,8 @@ export class Viewer {
 
       // Calculate global animation end time to keep entity visible after flight completion
       const globalAnimationEnd = Cesium.JulianDate.addSeconds(
-        globalTimeline.animationStart,
-        globalTimeline.animationDuration,
+        timelineParams.animationStart,
+        timelineParams.animationDuration,
         new Cesium.JulianDate(),
       );
 
