@@ -87,6 +87,11 @@ The clock works by:
 - `src` contains javascript files that are used to render the web page.
 - `data` contains the JSON data files that contain path data for the flights that the page renders.
 - `script` contains scripts that are used to source the flight data. Files here are not used for rendering the web page.
+- `dist` contains the files that are used to deploy the web page.
+
+## Deployment
+
+- The page is deployed using Cloudflare Pages. `package.json` contains a build step which copies all files that are necessary for deployment into the `dist` folder. `dist` folder is then exposed as is as a static website with Cloudflare Pages.
 
 ## Other things to note
 
@@ -94,3 +99,4 @@ The clock works by:
   - noisedocs
   - script
   - data
+  - dist

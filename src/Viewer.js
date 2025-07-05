@@ -7,6 +7,7 @@
  */
 import { feetToMeters } from "./conversionUtils.js";
 import { waitForGlobe } from "./globeUtils.js";
+import { config } from "./config.js";
 
 export class Viewer {
   /**
@@ -14,9 +15,8 @@ export class Viewer {
    * @param {HTMLElement} container - The HTML element to render the viewer in
    */
   constructor(container) {
-    // Set Cesium Ion access token
-    Cesium.Ion.defaultAccessToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMzQ1ZDBjMi0yMmZhLTRhYmItYjFmNC05ODVkMGNjNGNlNjQiLCJpZCI6MzA4MTg2LCJpYXQiOjE3NDg3NzgwMzB9.o-M5-iKk1e_omJhzGdLeygfCt1t-rhH92wNNzBlNIS4";
+    // Set Cesium Ion access token from config
+    Cesium.Ion.defaultAccessToken = config.cesiumAccessToken;
 
     // Initialize the Cesium Viewer with base configuration
     this.cesiumViewer = new Cesium.Viewer(container, {
