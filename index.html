@@ -11,77 +11,20 @@
             href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css"
             rel="stylesheet"
         />
-        <link href="./src/clock.css" rel="stylesheet" />
-
-        <style>
-            #cesiumContainer {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-            }
-
-            .header {
-                padding: 10px;
-                background-color: rgba(255, 255, 255, 0.8);
-                z-index: 1000;
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-            }
-
-            /* Hide default cesium toolbar and timeline */
-            .cesium-viewer-toolbar,
-            .cesium-viewer-animationContainer,
-            .cesium-viewer-timelineContainer,
-            .cesium-viewer-bottom {
-                display: none !important;
-            }
-
-            /* Custom container for cesium navigation controls */
-            #navigationContainer {
-                position: absolute;
-                bottom: 30px;
-                right: 30px;
-                z-index: 1000;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-            }
-
-            /* Style for navigation buttons */
-            .nav-button {
-                width: 32px;
-                height: 32px;
-                border-radius: 16px;
-                background-color: rgba(38, 38, 38, 0.75);
-                color: white;
-                border: 1px solid rgba(200, 200, 200, 0.3);
-                margin: 0 5px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
-            }
-
-            .nav-button:hover {
-                background-color: rgba(48, 48, 48, 0.9);
-            }
-        </style>
+        <link href="./src/main.css" rel="stylesheet" />
     </head>
     <body style="height: 100vh; margin: 0; padding: 0">
-        <div class="header">
-            <h1>HK Paths - Animated Flight Track</h1>
-        </div>
         <div id="cesiumContainer"></div>
-        <div id="simulationClock">
-            <div class="clock-container">
-                <div class="clock-label">Simulation Time</div>
-                <div class="clock-time">--:--:--</div>
-                <div class="clock-date">---- -- --</div>
+        <div id="infoContainer">
+            <div class="header">
+                <h1>Flight Paths</h1>
+            </div>
+            <div id="simulationClock">
+                <div class="clock-container">
+                    <div class="clock-label">Simulation Time</div>
+                    <div class="clock-time">--:--:--</div>
+                    <div class="clock-date">---- -- --</div>
+                </div>
             </div>
         </div>
         <div id="navigationContainer">
